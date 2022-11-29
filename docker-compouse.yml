@@ -1,0 +1,49 @@
+
+version: "3.9"
+
+networks:
+  whaticket_community_NET:
+    driver: bridge
+
+
+services:
+  db:
+    image: mariadb
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.40'
+          memory: 128M
+        reservations:
+          cpus: '0.02'
+          memory: 100M
+    networks:
+      - whaticket_community_NET:
+    volumes:
+      - /whaticket/db:/var/lib/mysql # deve mudar o caminho ante do : a esquerda para a pasta onde você criou a pasta
+    ports:
+      - 8820:3306
+    environment: 
+      MYSQL_ROOT_PASSWORD: whaticket
+      MYSQL_DATABASE: whaticket
+      MYSQL_USER: whaticket
+      MYSQL_PASSWORD: whaticket
+    container_name: whaticketdb
+
+  whats:
+    image: smcsistemas/whaticket-community
+    restart: always
+    networks:
+      - whaticket_community_NET:
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    depends_on:
+      - db
+    volumes:
+      - /whaticket/public:/app/backend/public # deve mudar o caminho ante do : a esquerda para a pasta onde você criou a pasta
+    ports:
+      - 3000:3000
+      - 8080:8080
+    container_name: whaticketcommunity
+
